@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes" />
+  <title>Fresh Bites · food & grocery</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+    body { background: #f8fafc; display: flex; justify-content: center; padding: 16px 12px 40px; min-height: 100vh; color: #1e293b; }
+    #app { max-width: 480px; width: 100%; background: #ffffff; border-radius: 40px 40px 30px 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); overflow: hidden; padding: 20px 16px 30px; position: relative; }
+    
+    .app-header { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; padding: 0 4px; }
+    .logo-icon { background: #10b981; width: 48px; height: 48px; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 28px; color: #fff; box-shadow: 0 4px 12px rgba(16,185,129,0.3); }
+    .logo-text { font-size: 26px; font-weight: 700; color: #1e293b; letter-spacing: -0.5px; }
+    .logo-text span { color: #10b981; }
+    .logo-sub { font-size: 12px; color: #64748b; margin-left: 4px; }
+    
+    .search-wrapper { background: #f1f5f9; border-radius: 40px; padding: 6px 18px; display: flex; align-items: center; gap: 10px; margin-bottom: 22px; border: 1px solid #e2e8f0; }
+    .search-wrapper i { color: #10b981; font-size: 18px; }
+    .search-wrapper input { background: transparent; border: none; padding: 14px 0; width: 100%; font-size: 16px; color: #1e293b; outline: none; }
+    .search-wrapper input::placeholder { color: #94a3b8; }
+
+    .guide-box { background: #f1f5f9; border-left: 4px solid #10b981; padding: 14px 18px; border-radius: 12px; margin: 0 0 16px 0; }
+    .guide-box h4 { color: #10b981; font-size: 15px; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+    .guide-box ol { margin: 0; padding-left: 20px; color: #475569; font-size: 13px; line-height: 1.6; }
+    .guide-box ol li strong { color: #1e293b; }
+
+    .categories { display: flex; gap: 14px; overflow-x: auto; padding-bottom: 12px; margin-bottom: 16px; scrollbar-width: none; }
+    .cat-item { background: #f1f5f9; padding: 10px 22px; border-radius: 40px; font-weight: 600; font-size: 15px; white-space: nowrap; color: #475569; cursor: pointer; transition: 0.15s; }
+    .cat-item.active, .cat-item:hover { background: #10b981; color: #fff; }
+
+    /* Vertical List Restaurants */
+    .restaurant-list { display: flex; flex-direction: column; gap: 14px; margin: 10px 0 16px; }
+    .resto-card { background: #ffffff; border-radius: 24px; padding: 18px 20px; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.02); cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; }
+    .resto-card:hover { transform: translateX(4px); border-color: #10b981; box-shadow: 0 4px 12px rgba(16,185,129,0.08); }
+    .resto-info h3 { font-size: 18px; font-weight: 600; color: #1e293b; margin-bottom: 2px; }
+    .resto-info p { font-size: 13px; color: #64748b; }
+    .resto-arrow { color: #10b981; font-size: 20px; }
+
+    /* Full Screen Menu Modal */
+    .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; display: none; justify-content: center; align-items: center; backdrop-filter: blur(4px); }
+    .menu-overlay.active { display: flex; }
+    .menu-panel { background: #ffffff; width: 100%; max-width: 480px; height: 100%; padding: 20px 16px 30px; animation: fadeIn 0.3s ease; overflow-y: auto; }
+    @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+    
+    .menu-header { display: flex; justify-content: space-between; align-items: center; background: #ffffff; padding: 10px 0 10px 0; border-bottom: 1px solid #e2e8f0; margin-bottom: 12px; position: sticky; top: 0; z-index: 10; }
+    .menu-header .back-btn { background: transparent; border: none; color: #10b981; font-size: 28px; cursor: pointer; padding: 0 8px; }
+    .menu-header h2 { font-size: 22px; font-weight: 700; color: #1e293b; margin: 0; flex:1; text-align: center; }
+    .menu-header .close-btn { background: transparent; border: none; color: #94a3b8; font-size: 24px; cursor: pointer; }
+    
+    .menu-search { background: #f1f5f9; border-radius: 40px; padding: 6px 18px; display: flex; align-items: center; gap: 10px; margin-bottom: 16px; border: 1px solid #e2e8f0; }
+    .menu-search i { color: #10b981; font-size: 18px; }
+    .menu-search input { background: transparent; border: none; padding: 10px 0; width: 100%; font-size: 15px; color: #1e293b; outline: none; }
+    .menu-search input::placeholder { color: #94a3b8; }
+
+    .menu-items { display: flex; flex-direction: column; gap: 12px; padding-bottom: 20px; }
+    .menu-item { background: #f8fafc; border-radius: 20px; padding: 12px 14px; display: flex; align-items: center; gap: 14px; border: 1px solid #e2e8f0; }
+    .menu-item.hidden { display: none; }
+    .menu-item .img-placeholder { width: 60px; height: 60px; border-radius: 18px; background: #e2e8f0; display: flex; align-items: center; justify-content: center; font-size: 26px; }
+    .menu-item-info { flex: 1; }
+    .menu-item-info h4 { font-size: 16px; font-weight: 600; color: #1e293b; }
+    .menu-item-info .item-price { font-size: 15px; color: #10b981; font-weight: 600; }
+    .menu-item button { background: #10b981; border: none; padding: 10px 16px; border-radius: 40px; font-weight: 600; color: #fff; font-size: 14px; cursor: pointer; box-shadow: 0 4px 8px rgba(16,185,129,0.2); }
+    
+    .cart-section { background: #f8fafc; border-radius: 30px; padding: 16px 14px 20px; margin: 18px 0 12px; border: 1px solid #e2e8f0; }
+    .cart-title { font-size: 20px; font-weight: 700; display: flex; gap: 10px; align-items: center; color: #10b981; margin-bottom: 10px; }
+    .cart-item { display: flex; justify-content: space-between; align-items: center; background: #ffffff; border-radius: 30px; padding: 10px 16px; margin-bottom: 8px; flex-wrap: wrap; gap: 4px; box-shadow: 0 1px 4px rgba(0,0,0,0.02); }
+    .cart-item .item-name { font-weight: 500; font-size: 14px; flex: 1; min-width: 120px; color: #1e293b; }
+    .cart-item .item-name small { color: #10b981; font-size: 11px; display: block; }
+    .cart-item .qty-control { display: flex; gap: 12px; align-items: center; background: #f1f5f9; padding: 2px 12px; border-radius: 40px; }
+    .qty-control i { color: #10b981; cursor: pointer; font-size: 16px; }
+    
+    .cart-total { display: flex; flex-direction: column; align-items: stretch; gap: 6px; margin-top: 12px; border-top: 1px solid #e2e8f0; padding-top: 12px; }
+    .cart-total .total-row { display: flex; justify-content: space-between; width: 100%; }
+    .cart-total .total-row .label { font-weight: 700; color: #1e293b; }
+    .cart-total .grocery-row { display: flex; justify-content: space-between; width: 100%; font-size: 14px; color: #64748b; border-top: 1px dashed #e2e8f0; padding-top: 8px; margin-top: 4px; }
+    .cart-total .grocery-row span:last-child { color: #10b981; }
+    
+    .order-section { background: #f8fafc; border-radius: 30px; padding: 18px 16px; border: 1px solid #e2e8f0; margin-top: 12px; }
+    .order-section h3 { margin-bottom: 14px; color: #10b981; }
+    .order-section input, .order-section textarea { width: 100%; padding: 14px 18px; border-radius: 20px; border: 1px solid #e2e8f0; background: #ffffff; color: #1e293b; margin-bottom: 12px; font-size: 15px; resize: vertical; outline: none; }
+    .order-section input:focus, .order-section textarea:focus { border-color: #10b981; }
+    .order-section textarea { min-height: 80px; }
+    .order-section input::placeholder, .order-section textarea::placeholder { color: #94a3b8; }
+    
+    .payment-section { margin-top: 20px; margin-bottom: 20px; }
+    .payment-section h3 { margin-bottom: 12px; color: #10b981; font-size: 16px; display: flex; gap: 8px; align-items: center; }
+    .payment-options { display: flex; gap: 10px; flex-wrap: wrap; }
+    .payment-option { flex: 1; min-width: 80px; cursor: pointer; }
+    .payment-option input { display: none; }
+    .payment-box { display: block; background: #f1f5f9; padding: 12px 8px; text-align: center; border-radius: 12px; border: 2px solid #e2e8f0; font-size: 14px; color: #475569; transition: all 0.2s; font-weight: 600; }
+    .payment-option input:checked + .payment-box { border-color: #10b981; color: #10b981; background: #ecfdf5; }
+    
+    .confirm-btn { background: #10b981; border: none; width: 100%; padding: 16px; border-radius: 60px; font-weight: 600; font-size: 18px; color: #fff; cursor: pointer; margin: 10px 0 6px; box-shadow: 0 6px 12px rgba(16,185,129,0.2); }
+    .empty-cart-msg { color: #94a3b8; padding: 14px 0; text-align: center; }
+
+    /* Toast & Popups */
+    #toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #10b981; color: #fff; padding: 14px 28px; border-radius: 60px; box-shadow: 0 8px 24px rgba(16,185,129,0.4); font-weight: 600; font-size: 15px; z-index: 99999; opacity: 0; display: flex; align-items: center; gap: 12px; transition: opacity 0.4s ease, transform 0.4s ease; pointer-events: none; white-space: nowrap; border: 1px solid rgba(255,255,255,0.2); }
+    #toast.show { opacity: 1; transform: translateX(-50%) translateY(-10px); pointer-events: auto; }
+
+    .reg-success-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 10001; display: none; justify-content: center; align-items: center; backdrop-filter: blur(4px); }
+    .reg-success-overlay.active { display: flex; }
+    .reg-success-box { background: #ffffff; padding: 40px 30px; border-radius: 30px; width: 85%; max-width: 360px; text-align: center; box-shadow: 0 25px 50px rgba(0,0,0,0.2); animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .reg-success-box .icon { color: #10b981; font-size: 56px; margin-bottom: 12px; display: block; }
+    .reg-success-box h2 { font-size: 24px; color: #1e293b; margin-bottom: 6px; font-weight: 700; }
+    .reg-success-box p { font-size: 16px; color: #64748b; margin-bottom: 20px; line-height: 1.5; }
+    .reg-success-box p strong { color: #10b981; }
+    .reg-success-btn { background: #10b981; border: none; padding: 12px 40px; border-radius: 60px; font-weight: 600; font-size: 16px; color: #fff; cursor: pointer; transition: 0.2s; }
+    .reg-success-btn:hover { background: #059669; box-shadow: 0 4px 12px rgba(16,185,129,0.3); }
+
+    .contact-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(4px); }
+    .contact-overlay.active { display: flex; }
+    .contact-box { background: #ffffff; padding: 30px 24px; border-radius: 30px; width: 85%; max-width: 380px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+    .contact-box h3 { color: #10b981; margin-bottom: 20px; font-size: 20px; }
+    .contact-options { display: flex; flex-direction: column; gap: 14px; }
+    .contact-opt-btn { background: #f1f5f9; padding: 16px; border-radius: 60px; border: 1px solid #e2e8f0; color: #1e293b; font-size: 18px; font-weight: 600; text-decoration: none; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px; }
+    .contact-opt-btn:hover { background: #10b981; color: #fff; border-color: #10b981; }
+    .contact-close { margin-top: 18px; color: #94a3b8; font-size: 14px; cursor: pointer; display: inline-block; }
+
+    .auth-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(4px); }
+    .auth-overlay.active { display: flex; }
+    .auth-box { background: #ffffff; padding: 30px 24px; border-radius: 30px; width: 90%; max-width: 400px; box-shadow: 0 25px 50px rgba(0,0,0,0.1); text-align: center; }
+    .auth-box .tabs { display: flex; gap: 10px; margin-bottom: 20px; background: #f1f5f9; padding: 4px; border-radius: 40px; }
+    .auth-box .tab-btn { flex: 1; padding: 10px 0; border: none; background: transparent; border-radius: 40px; font-weight: 600; color: #64748b; cursor: pointer; transition: 0.2s; }
+    .auth-box .tab-btn.active { background: #10b981; color: #fff; box-shadow: 0 4px 8px rgba(16,185,129,0.2); }
+    .auth-input { width: 100%; padding: 14px 18px; border-radius: 60px; border: 1px solid #e2e8f0; background: #f8fafc; color: #1e293b; margin-bottom: 14px; font-size: 15px; outline: none; }
+    .auth-input:focus { border-color: #10b981; }
+    .auth-btn { background: #10b981; border: none; width: 100%; padding: 14px; border-radius: 60px; font-weight: 600; font-size: 16px; color: #fff; cursor: pointer; margin-top: 6px; }
+    .auth-error { color: #ef4444; font-size: 13px; margin-top: 10px; display: none; }
+    .auth-forms > div { display: none; }
+    .auth-forms > div.active { display: block; }
+  </style>
+</head>
+<body>
+
+<!-- TOAST NOTIFICATION -->
+<div id="toast"><i class="fas fa-shopping-bag"></i> <span id="toastMsg">আইটেমটি কার্টে যোগ করা হয়েছে!</span></div>
+
+<!-- REGISTRATION SUCCESS MODAL -->
+<div id="regSuccessOverlay" class="reg-success-overlay">
+    <div class="reg-success-box">
+        <i class="fas fa-check-circle icon"></i>
+        <h2>রেজিস্ট্রেশন সফল!</h2>
+        <p>স্বাগতম, <strong id="regSuccessName">কাস্টমার</strong>! <br>আপনার একাউন্ট সফলভাবে তৈরি হয়েছে।</p>
+        <button class="reg-success-btn" id="closeRegSuccessBtn">চলুন শুরু করা যাক</button>
+    </div>
+</div>
+
+<!-- AUTH MODAL -->
+<div id="authOverlay" class="auth-overlay active">
+    <div class="auth-box">
+        <div class="logo-icon" style="margin: 0 auto 12px;"><i class="fas fa-bolt"></i></div>
+        <h2 style="color: #1e293b; margin-bottom: 4px;">Fresh Bites</h2>
+        <p style="color: #64748b; font-size: 14px; margin-bottom: 16px;">স্বাগতম! একাউন্ট তৈরি বা লগইন করুন</p>
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="register">রেজিস্টার</button>
+            <button class="tab-btn" data-tab="login">লগইন</button>
+        </div>
+        <div class="auth-forms">
+            <div id="formRegister" class="active">
+                <input type="text" id="regName" class="auth-input" placeholder="আপনার নাম" required />
+                <input type="tel" id="regPhone" class="auth-input" placeholder="মোবাইল নম্বর (01xxxxxxxxx)" required />
+                <input type="password" id="regPass" class="auth-input" placeholder="পাসওয়ার্ড (ন্যূনতম ৪ ডিজিট)" required />
+                <button class="auth-btn" id="registerBtn">রেজিস্ট্রেশন করুন</button>
+                <div id="regError" class="auth-error">সঠিক তথ্য দিন!</div>
+            </div>
+            <div id="formLogin">
+                <input type="tel" id="loginPhone" class="auth-input" placeholder="মোবাইল নম্বর" required />
+                <input type="password" id="loginPass" class="auth-input" placeholder="পাসওয়ার্ড" required />
+                <button class="auth-btn" id="loginBtn">লগইন করুন</button>
+                <div id="loginError" class="auth-error">ভুল ফোন বা পাসওয়ার্ড!</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CONTACT US MODAL -->
+<div id="contactOverlay" class="contact-overlay">
+    <div class="contact-box">
+        <h3>যোগাযোগ করুন</h3>
+        <div class="contact-options">
+            <a href="tel:8801867477158" class="contact-opt-btn"><i class="fas fa-phone-alt"></i> 📞 কল করুন</a>
+            <a href="mailto:foodexpress.bd@gmail.com" class="contact-opt-btn"><i class="fas fa-envelope"></i> 📧 ইমেইল করুন</a>
+            <span class="contact-close" id="closeContactBtn">বন্ধ করুন</span>
+        </div>
+    </div>
+</div>
+
+<div id="app">
+  <div class="app-header">
+    <div class="logo-icon"><i class="fas fa-bolt"></i></div>
+    <div><span class="logo-text">Fresh<span>Bites</span></span><span class="logo-sub">delivery</span></div>
+  </div>
+
+  <div class="search-wrapper">
+    <i class="fas fa-search"></i>
+    <input type="text" placeholder="Search food, grocery, veg or medicine..." id="searchInput" />
+  </div>
+
+  <div class="guide-box">
+    <h4><i class="fas fa-circle-info"></i> কীভাবে অর্ডার করবেন?</h4>
+    <ol>
+      <li>আপনার পছন্দের রেস্টুরেন্ট বা ক্যাটাগরি থেকে আইটেম বেছে <strong>"+ Add"</strong> করুন।</li>
+      <li>কার্টে আইটেম যুক্ত হলে, ডেলিভারির <strong>নাম, ফোন ও ঠিকানা</strong> দিন।</li>
+      <li>পেমেন্ট পদ্ধতি (COD/বিকাশ/নগদ) বেছে নিন।</li>
+      <li><strong>"Confirm Order"</strong> বাটনে ক্লিক করুন।</li>
+    </ol>
+  </div>
+
+  <div class="categories" id="categoryList">
+    <span class="cat-item active" data-cat="all">All</span>
+    <span class="cat-item" data-cat="food">🍔 Food</span>
+    <span class="cat-item" data-cat="grocery">🛒 Grocery</span>
+    <span class="cat-item" data-cat="vegetables">🥦 Vegetables</span>
+    <span class="cat-item" data-cat="medicine">💊 Medicine</span>
+    <span class="cat-item" data-cat="biscuits">🍪 Biscuits</span>
+    <span class="cat-item" data-cat="drinks">🥤 Drinks</span>
+    <span class="cat-item" data-cat="chips">🍟 Chips</span>
+    <span class="cat-item" data-cat="chocolate">🍫 Chocolate</span>
+  </div>
+
+  <div id="restaurantContainer" class="restaurant-list"></div>
+
+  <!-- MENU OVERLAY -->
+  <div id="menuOverlay" class="menu-overlay">
+    <div class="menu-panel" id="menuPanel">
+      <div class="menu-header">
+        <button class="back-btn" id="menuBackBtn"><i class="fas fa-arrow-left"></i></button>
+        <h2 id="menuRestoName">Menu</h2>
+        <button class="close-btn" id="closeMenuBtn"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="menu-search">
+        <i class="fas fa-search"></i>
+        <input type="text" id="menuSearchInput" placeholder="এই মেনুতে খুঁজুন..." />
+      </div>
+      <div id="menuItemsList" class="menu-items"></div>
+    </div>
+  </div>
+
+  <div class="cart-section" id="cartSection">
+    <div class="cart-title"><i class="fas fa-cart-shopping"></i> Your Cart</div>
+    <div id="cartItemsContainer"></div>
+    <div class="cart-total">
+        <div class="total-row"><span class="label">খাবারের মোট (স্থির মূল্য)</span><span id="cartFoodPrice">৳ 0</span></div>
+        <div class="grocery-row"><span>বাজার মাল (গ্রোসারি/সবজি/ওষুধ)</span><span>কল করে জানুন</span></div>
+    </div>
+  </div>
+
+  <div class="order-section">
+    <h3><i class="fas fa-truck"></i> Delivery details & Note</h3>
+    <input type="text" id="customerName" placeholder="Full name (Required)" required />
+    <input type="tel" id="customerPhone" placeholder="Phone number (Required)" required />
+    <input type="text" id="customerAddress" placeholder="Address (Required)" required />
+    <textarea id="customerNote" placeholder="📝 আপনার প্রয়োজনীয় মালামাল, পরিমাণ বা বিশেষ নির্দেশনা লিখুন (যেমন: ২ কেজি বাসমতি চাল, ৫ পিস দই, মুরগি অর্ধেক)"></textarea>
+
+    <div class="payment-section">
+      <h3><i class="fas fa-credit-card"></i> পেমেন্ট পদ্ধতি নির্বাচন করুন</h3>
+      <div class="payment-options">
+        <label class="payment-option"><input type="radio" name="paymentMethod" value="ক্যাশ অন ডেলিভারি (COD)" checked /><span class="payment-box">COD</span></label>
+        <label class="payment-option"><input type="radio" name="paymentMethod" value="বিকাশ (bKash)" /><span class="payment-box">bKash</span></label>
+        <label class="payment-option"><input type="radio" name="paymentMethod" value="নগদ (Nagad)" /><span class="payment-box">Nagad</span></label>
+      </div>
+    </div>
+    
+    <button class="confirm-btn" id="confirmOrderBtn"><i class="fas fa-check"></i> Confirm Order</button>
+
+    <div style="text-align: center; margin-top: 15px;">
+        <button class="contact-btn" id="contactBtn" style="background: transparent; border: 1px solid #e2e8f0; color: #10b981; padding: 10px 30px; border-radius: 40px; font-weight: 600; cursor: pointer; font-size: 15px; width: auto;">
+            <i class="fas fa-headset"></i> Contact Us
+        </button>
+    </div>
+
+    <div class="accordion-box" style="margin-top: 20px; padding: 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 16px;">
+      <h4 style="color: #10b981; margin-bottom: 8px; font-size: 16px; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">নোট ও শর্তাবলী (Terms) <i class="fas fa-chevron-down" id="termsToggleIcon"></i></h4>
+      <ul id="termsContent" style="list-style: none; padding-left: 0; margin-top: 10px; display: none;">
+        <li style="font-size: 13px; color: #475569; line-height: 1.8; padding: 4px 0; border-bottom: 1px solid #e2e8f0;"><strong style="color: #1e293b;">১. পণ্যের প্রাপ্যতা:</strong> অর্ডারের সময় যদি কোনো আইটেম স্টকে না থাকে, তবে তা ডেলিভারি দেওয়া সম্ভব হবে না।</li>
+        <li style="font-size: 13px; color: #475569; line-height: 1.8; padding: 4px 0; border-bottom: 1px solid #e2e8f0;"><strong style="color: #1e293b;">২. মূল্য পরিবর্তনশীল:</strong> সব ধরনের পণ্যের (খাবার, গ্রোসারি, সবজি, ওষুধ) দাম বাজারদর ও মৌসুম অনুযায়ী পরিবর্তনশীল। অর্ডার নিশ্চিত করার আগে আমাদের কল করুন।</li>
+        <li style="font-size: 13px; color: #475569; line-height: 1.8; padding: 4px 0; border-bottom: 1px solid #e2e8f0;"><strong style="color: #1e293b;">৩. ডেলিভারি এলাকা ও চার্জ:</strong> আমাদের ডেলিভারি অঞ্চল <u>শ্রীমঙ্গল ও মৌলভীবাজার জেলায়</u> সীমাবদ্ধ। ডেলিভারির সময় ও অতিরিক্ত ডেলিভারি চার্জ সম্পর্কে ফোনে নিশ্চিত হয়ে নিন।</li>
+        <li style="font-size: 13px; color: #475569; line-height: 1.8; padding: 4px 0; border-bottom: 1px solid #e2e8f0;"><strong style="color: #1e293b;">৪. পেমেন্ট পদ্ধতি:</strong> ক্যাশ অন ডেলিভারি (COD) উপলব্ধ। এছাড়া বিকাশ/নগদে অগ্রিম পেমেন্ট করা যাবে।</li>
+        <li style="font-size: 13px; color: #475569; line-height: 1.8; padding: 4px 0; border-bottom: 1px solid #e2e8f0;"><strong style="color: #1e293b;">৫. অর্ডার বাতিল:</strong> অর্ডার কনফার্ম করার পর কোনো অবস্থাতেই অর্ডার বাতিল করা যাবে না।</li>
+        <li style="font-size: 13px; color: #475569; line-height: 1.8; padding: 4px 0; border-bottom: none;"><strong style="color: #1e293b;">৬. ফেরত/প্রতিস্থাপন:</strong> পচনশীল পণ্য (সবজি, মাছ, মাংস) ফেরত নেওয়া যাবে না। ত্রুটিপূর্ণ পণ্য ডেলিভারি পারসনের কাছে সাথে সাথে প্রতিস্থাপন করিয়ে নিন।</li>
+      </ul>
+    </div>
+
+    <div class="accordion-box" style="margin-top: 10px; padding: 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 16px;">
+      <h4 style="color: #10b981; margin-bottom: 8px; font-size: 16px; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">❓ সাধারণ প্রশ্নাবলী (FAQ) <i class="fas fa-chevron-down" id="faqToggleIcon"></i></h4>
+      <ul id="faqContent" style="list-style: none; padding-left: 0; margin-top: 10px; display: none;">
+        <li style="font-size: 13px; color: #475569; line-height: 1.8; padding: 4px 0; border-bottom: 1px solid #e2e8f0;"><strong>ডেলিভারি কতক্ষণে পাই?</strong> → শ্রীমঙ্গল ও মৌলভীবাজার এলাকায় ৩০-৬০ মিনিট।</li>
+        <li style="font-size: 13px; color: #475569; line-height: 1.8; padding: 4px 0; border-bottom: 1px solid #e2e8f0;"><strong>পেমেন্ট কীভাবে করবেন?</strong> → COD অথবা রাইডারের QR কোড স্ক্যান করে।</li>
+        <li style="font-size: 13px; color: #475569; line-height: 1.8; padding: 4px 0; border-bottom: 1px solid #e2e8f0;"><strong>কোন জিনিস ফেরত দেওয়া যায়?</strong> → পচনশীল পণ্য নয়। ত্রুটিপূর্ণ পণ্য পেলে প্রতিস্থাপন করুন।</li>
+        <li style="font-size: 13px; color: #475569; line-height: 1.8; padding: 4px 0; border-bottom: none;"><strong>গ্রোসারি/সবজির দাম কীভাবে ঠিক হবে?</strong> → দাম বাজারদর অনুযায়ী। অর্ডার করার আগে ফোন করুন।</li>
+      </ul>
+    </div>
+
+    <div class="footer" style="text-align: center; color: #94a3b8; font-size: 13px; padding-top: 20px; padding-bottom: 10px; border-top: 1px solid #e2e8f0; margin-top: 20px;">
+      <p>&copy; <span id="currentYear"></span> Fresh Bites. All Rights Reserved.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function() {
+    // ================= BACKEND API URL (Vercel লিংক বসানো হয়েছে) =================
+    const API_URL = "https://freshbites-backend.vercel.app/api/order";
+
+    // ================= REGISTRATION =================
+    const regSuccessOverlay = document.getElementById('regSuccessOverlay');
+    const regSuccessName = document.getElementById('regSuccessName');
+    const closeRegSuccessBtn = document.getElementById('closeRegSuccessBtn');
+    closeRegSuccessBtn.addEventListener('click', function() { regSuccessOverlay.classList.remove('active'); });
+    regSuccessOverlay.addEventListener('click', function(e) { if (e.target === this) regSuccessOverlay.classList.remove('active'); });
+
+    const authOverlay = document.getElementById('authOverlay');
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const formRegister = document.getElementById('formRegister');
+    const formLogin = document.getElementById('formLogin');
+    const regName = document.getElementById('regName');
+    const regPhone = document.getElementById('regPhone');
+    const regPass = document.getElementById('regPass');
+    const regBtn = document.getElementById('registerBtn');
+    const regError = document.getElementById('regError');
+    const loginPhone = document.getElementById('loginPhone');
+    const loginPass = document.getElementById('loginPass');
+    const loginBtn = document.getElementById('loginBtn');
+    const loginError = document.getElementById('loginError');
+
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            tabBtns.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            const tab = this.dataset.tab;
+            document.querySelectorAll('.auth-forms > div').forEach(d => d.classList.remove('active'));
+            if(tab === 'register') formRegister.classList.add('active');
+            else formLogin.classList.add('active');
+        });
+    });
+
+    function checkAuth() {
+        const user = localStorage.getItem('freshBites_user');
+        if (!user) { authOverlay.classList.add('active'); } 
+        else { authOverlay.classList.remove('active'); }
+    }
+
+    regBtn.addEventListener('click', function() {
+        const name = regName.value.trim();
+        const phone = regPhone.value.trim();
+        const pass = regPass.value.trim();
+        if(name === '' || phone.length < 11 || pass.length < 4) { regError.style.display = 'block'; return; }
+        regError.style.display = 'none';
+        localStorage.setItem('freshBites_user', JSON.stringify({ name, phone, pass }));
+        authOverlay.classList.remove('active');
+        regSuccessName.textContent = name;
+        regSuccessOverlay.classList.add('active');
+    });
+
+    loginBtn.addEventListener('click', function() {
+        const phone = loginPhone.value.trim();
+        const pass = loginPass.value.trim();
+        const stored = localStorage.getItem('freshBites_user');
+        if(!stored) { loginError.style.display = 'block'; return; }
+        const user = JSON.parse(stored);
+        if(user.phone === phone && user.pass === pass) {
+            loginError.style.display = 'none';
+            localStorage.setItem('freshBites_user', JSON.stringify({ ...user, loggedIn: true }));
+            authOverlay.classList.remove('active');
+        } else { loginError.style.display = 'block'; }
+    });
+    checkAuth();
+
+    // ================= CONTACT & TOAST =================
+    const contactOverlay = document.getElementById('contactOverlay');
+    const contactBtn = document.getElementById('contactBtn');
+    const closeContactBtn = document.getElementById('closeContactBtn');
+    contactBtn.addEventListener('click', () => contactOverlay.classList.add('active'));
+    closeContactBtn.addEventListener('click', () => contactOverlay.classList.remove('active'));
+    contactOverlay.addEventListener('click', (e) => { if(e.target === this) contactOverlay.classList.remove('active'); });
+
+    const toast = document.getElementById('toast');
+    const toastMsg = document.getElementById('toastMsg');
+    let toastTimeout;
+    function showToast(message) {
+        toastMsg.textContent = message;
+        toast.classList.add('show');
+        clearTimeout(toastTimeout);
+        toastTimeout = setTimeout(() => { toast.classList.remove('show'); }, 2500);
+    }
+    document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+    // ================= ACCORDION =================
+    function setupAccordion(headerId, contentId, iconId) {
+      const header = document.getElementById(headerId);
+      const content = document.getElementById(contentId);
+      const icon = document.getElementById(iconId);
+      header.addEventListener('click', function() {
+        if (content.classList.contains('open')) { content.classList.remove('open'); icon.className = 'fas fa-chevron-down'; } 
+        else { content.classList.add('open'); icon.className = 'fas fa-chevron-up'; }
+      });
+    }
+    setupAccordion('termsToggleIcon', 'termsContent', 'termsToggleIcon');
+    setupAccordion('faqToggleIcon', 'faqContent', 'faqToggleIcon');
+
+    // ================= SIZE LOGIC =================
+    const sizeProgression50 = [ { label: '৫০ গ্রাম', grams: 50 }, { label: '১০০ গ্রাম', grams: 100 }, { label: '২৫০ গ্রাম', grams: 250 }, { label: '৫০০ গ্রাম', grams: 500 }, { label: '১ কেজি', grams: 1000 }, { label: '২ কেজি', grams: 2000 } ];
+    function formatItemDisplay(name, qty) {
+      let match = name.match(/-\s*(\d+(?:\.\d+)?)\s*(কেজি|গ্রাম|পিস|প্যাক|ml|মিলি)/i);
+      if (match) {
+        let baseVal = parseFloat(match[1]), unit = match[2], prefix = name.substring(0, match.index).trim();
+        if (unit === 'কেজি') return `${prefix} - ${baseVal * qty} কেজি`;
+        else if (unit === 'গ্রাম') {
+          if (baseVal === 50) {
+            let idx = qty - 1;
+            if (idx < sizeProgression50.length) return `${prefix} - ${sizeProgression50[idx].label}`;
+            else { let totalG = 50 * qty; return `${prefix} - ${totalG >= 1000 ? (totalG/1000)+' কেজি' : totalG+' গ্রাম'}`; }
+          } else {
+            let totalG = baseVal * qty;
+            return `${prefix} - ${totalG >= 1000 ? (totalG/1000)+' কেজি' : totalG+' গ্রাম'}`;
+          }
+        } else if (unit === 'পিস' || unit === 'প্যাক') return `${prefix} - ${qty} ${unit}`;
+      }
+      return `${name} x${qty}`;
+    }
+    function getSizeLabel(name, qty) {
+      let match = name.match(/-\s*(\d+(?:\.\d+)?)\s*(কেজি|গ্রাম|পিস|প্যাক|ml|মিলি)/i);
+      if (match) {
+        let baseVal = parseFloat(match[1]), unit = match[2], prefix = name.substring(0, match.index).trim();
+        if (unit === 'গ্রাম' && baseVal === 50) {
+          let idx = qty - 1;
+          if (idx < sizeProgression50.length) return `${prefix} - ${sizeProgression50[idx].label}`;
+          else { let totalG = 50 * qty; return `${prefix} - ${totalG >= 1000 ? (totalG/1000)+' কেজি' : totalG+' গ্রাম'}`; }
+        }
+      }
+      return formatItemDisplay(name, qty);
+    }
+
+    // ================= DATA (7 RESTAURANTS) =================
+    const restaurantData = [
+      { id: 0, name: "Mommy's Kitchen", cat: "food", items: [
+        {name:"Crispy Chicken Burger", price:110, image:"🍔"}, {name:"Crispy Chicken Cheese Burger", price:150, image:"🍔"}, {name:"BBQ Chicken Burger", price:170, image:"🍔"}, {name:"Double Decker Burger", price:200, image:"🍔"}, {name:"American Burger", price:250, image:"🍔"}, {name:"Mommy's Kitchen Special Burger", price:250, image:"🍔"},
+        {name:"Chicken Sub", price:130, image:"🥪"}, {name:"Chicken Naga Sub", price:150, image:"🥪"}, {name:"BBQ Chicken Sub", price:170, image:"🥪"}, {name:"AMERICAN sub", price:250, image:"🥪"}, {name:"Club Sandwich", price:250, image:"🥪"},
+        {name:"Egg Chowmein", price:100, image:"🍜"}, {name:"Chicken Chowmein", price:140, image:"🍜"}, {name:"BBQ Chowmein", price:170, image:"🍜"}, {name:"MK Special Chowmein", price:200, image:"🍜"},
+        {name:"Regular Ramen", price:150, image:"🍜"}, {name:"Hot Ramen", price:180, image:"🍜"}, {name:"Momo Ramen", price:280, image:"🍜"}, {name:"Cheesy Ramen", price:350, image:"🍜"}, {name:"Prawn Ramen", price:380, image:"🍜"}, {name:"Special Ramen", price:400, image:"🍜"}
+      ]},
+      { id: 1, name: "Kabab Mahol", cat: "food", items: [
+        {name:"Chocolate Cup Cake", price:40, image:"🧁"}, {name:"Butterscotch Cup Cake", price:40, image:"🧁"},
+        {name:"Lacchi", price:100, image:"🥤"}, {name:"Cold Coffee", price:100, image:"🥤"}, {name:"Strawberry Milk Shake", price:100, image:"🥤"},
+        {name:"Kabab Burger", price:100, image:"🍔"}, {name:"Sub Sandwich", price:100, image:"🥪"}, {name:"Kabab Cheese Burger", price:130, image:"🍔"}, {name:"Cheese Sub Sandwich", price:130, image:"🥪"}, {name:"Kabab Wrap", price:80, image:"🌯"},
+        {name:"Hasher Gosto", price:220, image:"🍗"}, {name:"Hasher Gosto Vuna Khichuri", price:200, image:"🍛"}, {name:"Chicken Haleem", price:60, image:"🍛"},
+        {name:"Chaler Ruti", price:10, image:"🍞"}, {name:"Porota", price:15, image:"🍞"}, {name:"Luchi", price:10, image:"🍞"}, {name:"Butter Naan", price:25, image:"🍞"},
+        {name:"Chocolate Pastry", price:100, image:"🍰"}, {name:"Butterscotch Pastry", price:100, image:"🍰"}, {name:"Blueberry Pastry", price:120, image:"🍰"}, {name:"Roshmalai Pastry", price:100, image:"🍰"}, {name:"Pudding", price:50, image:"🍮"}
+      ]},
+      { id: 3, name: "Cafe Time Out", cat: "food", items: [
+        {name:"Espresso", price:120, image:"☕"}, {name:"Americano", price:150, image:"☕"}, {name:"Latte", price:199, image:"☕"}, {name:"Cappuccino", price:180, image:"☕"}, {name:"Mocha", price:240, image:"☕"}, {name:"Iced Americano", price:170, image:"☕"}, {name:"Iced Latte", price:220, image:"☕"}, {name:"Iced Cappuccino", price:230, image:"☕"}, {name:"Iced Mocha", price:250, image:"☕"}, {name:"Ice Tea", price:140, image:"🧊"}, {name:"Blue ocean", price:210, image:"🧊"},
+        {name:"Cold Coffee", price:200, image:"☕"}, {name:"Orio Shake", price:210, image:"🥤"}, {name:"Lacchi", price:160, image:"🥤"}, {name:"Milk Shake", price:150, image:"🥤"}, {name:"Chocolate Shake", price:180, image:"🥤"},
+        {name:"Cream of mushroom soup", price:290, image:"🍲"}, {name:"Creamy chicken mushroom soup", price:360, image:"🍲"}, {name:"Thai soup", price:220, image:"🍲"}, {name:"Clear vegetables soup", price:199, image:"🍲"}
+      ]},
+      { id: 4, name: "Kacchi Ghor", cat: "food", items: [
+        {name:"Matin Chui Jhal (Sada Bhat + Daal)", price:270, image:"🍛"}, {name:"Sarisha Ilish (Sada Bhat + Daal)", price:320, image:"🍛"}, {name:"Sarisha Chingri (Sada Bhat + Daal)", price:290, image:"🍛"},
+        {name:"Dal Bhuna", price:65, image:"🍛"}, {name:"Alur Bhuna", price:65, image:"🍛"}, {name:"Tomato Bhuna", price:65, image:"🍛"}, {name:"Begun Bhuna", price:65, image:"🍛"}, {name:"Daal (Plate)", price:50, image:"🍛"},
+        {name:"Mach Bhuna", price:20, image:"🍛"}, {name:"Dim Bhuna", price:20, image:"🍛"}, {name:"Chingri Bhuna", price:20, image:"🍛"}, {name:"Shutir Bhuna", price:80, image:"🍛"}, {name:"Sada Bhat", price:70, image:"🍛"},
+        {name:"Mutton Kacchi (Basmati)", price:300, image:"🍗"}, {name:"Mutton Leg Kacchi (Basmati)", price:400, image:"🍗"}, {name:"Chicken Kacchi (Basmati)", price:250, image:"🍗"}, {name:"Chicken Biryani (Chinigura)", price:180, image:"🍗"}, {name:"Mutton Chaap Polaw", price:200, image:"🍛"}
+      ]},
+      { id: 10, name: "Flaming Dine", cat: "food", items: [
+        {name:"Chicken Steak Platter", price:450, image:"🍗"}, {name:"Szechuan Platter", price:320, image:"🍗"}, {name:"BBQ Grilled Chicken Platter", price:390, image:"🍗"}, {name:"Honey Mustard Grilled Chicken Platter", price:390, image:"🍗"},
+        {name:"Chicken Dominator Pizza 8inch", price:420, image:"🍕"}, {name:"Chicken Dominator Pizza 10inch", price:500, image:"🍕"}, {name:"Chicken Dominator Pizza 12inch", price:720, image:"🍕"},
+        {name:"BBQ Pizza 8inch", price:460, image:"🍕"}, {name:"BBQ Pizza 10inch", price:590, image:"🍕"}, {name:"BBQ Pizza 12inch", price:780, image:"🍕"},
+        {name:"Sausage Carnival Pizza 8inch", price:480, image:"🍕"}, {name:"Sausage Carnival Pizza 10inch", price:620, image:"🍕"}, {name:"Sausage Carnival Pizza 12inch", price:800, image:"🍕"},
+        {name:"Hot Coffee", price:100, image:"☕"}, {name:"Cold Coffee", price:120, image:"☕"}, {name:"Chocolate Cold Coffee", price:190, image:"☕"}
+      ]},
+      { id: 11, name: "Black Pepper", cat: "food", items: [
+        {name:"Strawberry Mojito", price:120, image:"🍹"}, {name:"Orange Mojito", price:120, image:"🍹"}, {name:"Blueberry Mojito", price:120, image:"🍹"}, {name:"Blue Ocean Mojito", price:120, image:"🍹"}, {name:"Mango Mojito", price:120, image:"🍹"}, {name:"Lemon Mojito", price:120, image:"🍹"},
+        {name:"Salt Lassi", price:100, image:"🥤"}, {name:"Mango Lassi", price:120, image:"🥤"}, {name:"Banana Lassi", price:120, image:"🥤"}, {name:"Regular Lassi", price:100, image:"🥤"}, {name:"Nut Lassi", price:150, image:"🥤"},
+        {name:"Strawberry Shake", price:150, image:"🥤"}, {name:"Blueberry Shake", price:150, image:"🥤"}, {name:"Mango Shake", price:150, image:"🥤"}, {name:"Banana Shake", price:150, image:"🥤"}, {name:"Oreo Milk Shake", price:160, image:"🥤"}, {name:"Butterscotch Shake", price:170, image:"🥤"}, {name:"Milk Nut Shake", price:170, image:"🥤"}, {name:"Chocolate Shake", price:150, image:"🥤"}
+      ]},
+      { id: 19, name: "Riziq Restaurant", cat: "food", items: [
+        {name:"চিকেন আল ফাহাম (রিজিক স্পেশাল)", price:500, image:"🍗"}, {name:"চিকেন আচারি মাসালা", price:180, image:"🍗"}, {name:"চিকেন রেশমি কাবাব (প্রতি হাফ)", price:170, image:"🍗"}, {name:"চিকেন হারিয়ালি কাবাব (প্রতি হাফ)", price:160, image:"🍗"}, {name:"বারবিকিউ চিকেন (প্রতি পিস)", price:160, image:"🍗"}, {name:"চিকেন তন্দুরি (প্রতি পিস)", price:100, image:"🍗"}, {name:"চিকেন উইংস (৫ পিস)", price:160, image:"🍗"}, {name:"ফিশ কাবাব", price:160, image:"🍢"},
+        {name:"চিকেন বিরিয়ানী", price:160, image:"🍛"}, {name:"মাটন বিরিয়ানী", price:260, image:"🍛"}, {name:"কাচ্চি বিরিয়ানী", price:270, image:"🍛"},
+        {name:"রুই মাছ, ভাত, ডাল (প্রতি হাফ)", price:180, image:"🐟"}, {name:"বোয়াল মাছ, ভাত, ডাল (প্রতি হাফ)", price:250, image:"🐟"}, {name:"পাবদা মাছ, ভাত, ডাল (প্রতি হাফ)", price:250, image:"🐟"}, {name:"চিঙড়ি মাছ, ভাত, ডাল (প্রতি হাফ)", price:250, image:"🐟"}
+      ]},
+      { id: 15, name: "🛒 বাজার (Grocery)", cat: "grocery", items: [] },
+      { id: 16, name: "🥦 তাজা সবজি (Vegetables)", cat: "vegetables", items: [] },
+      { id: 17, name: "💊 ওষুধ (Medicine)", cat: "medicine", items: [] },
+      { id: 18, name: "🍪 বিস্কুট (Biscuits)", cat: "biscuits", items: [] },
+      { id: 20, name: "🥤 ড্রিংকস (Drinks)", cat: "drinks", items: [] },
+      { id: 21, name: "🍟 চিপস কর্নার (Chips)", cat: "chips", items: [] },
+      { id: 22, name: "🍫 চকলেট কর্নার (Chocolate)", cat: "chocolate", items: [] }
+    ];
+
+    // ================= CART LOGIC =================
+    let cart = {};
+    let currentRestoId = null;
+    let activeCategory = 'all';
+    let searchQuery = '';
+    const restoContainer = document.getElementById('restaurantContainer');
+    const menuOverlay = document.getElementById('menuOverlay');
+    const menuPanel = document.getElementById('menuPanel');
+    const menuRestoName = document.getElementById('menuRestoName');
+    const menuItemsList = document.getElementById('menuItemsList');
+    const menuBackBtn = document.getElementById('menuBackBtn');
+    const closeMenuBtn = document.getElementById('closeMenuBtn');
+    const cartItemsContainer = document.getElementById('cartItemsContainer');
+    const cartFoodPrice = document.getElementById('cartFoodPrice');
+    const confirmBtn = document.getElementById('confirmOrderBtn');
+    const searchInput = document.getElementById('searchInput');
+    const catItems = document.querySelectorAll('.cat-item');
+    const menuSearchInput = document.getElementById('menuSearchInput');
+    const paymentInputs = document.querySelectorAll('input[name="paymentMethod"]');
+    let selectedPayment = 'ক্যাশ অন ডেলিভারি (COD)';
+    paymentInputs.forEach(input => { input.addEventListener('change', function() { selectedPayment = this.value; }); });
+
+    function renderRestaurants() {
+      let filtered = restaurantData;
+      if (activeCategory !== 'all') filtered = filtered.filter(r => r.cat === activeCategory);
+      if (searchQuery.trim() !== '') filtered = filtered.filter(r => r.name.toLowerCase().includes(searchQuery.toLowerCase()));
+      restoContainer.innerHTML = filtered.map(r => `
+        <div class="resto-card" data-restoid="${r.id}">
+          <div class="resto-info">
+            <h3>${r.name}</h3>
+            <p>${r.items.length} items</p>
+          </div>
+          <div class="resto-arrow"><i class="fas fa-chevron-right"></i></div>
+        </div>
+      `).join('');
+      document.querySelectorAll('.resto-card').forEach(card => {
+        card.addEventListener('click', function() { openMenu(parseInt(this.dataset.restoid)); });
+      });
+    }
+
+    menuSearchInput.addEventListener('input', function() {
+      const searchTerm = this.value.toLowerCase().trim();
+      const items = menuItemsList.querySelectorAll('.menu-item');
+      items.forEach(item => {
+        const name = item.querySelector('h4').textContent.toLowerCase();
+        if (name.includes(searchTerm) || searchTerm === '') item.classList.remove('hidden');
+        else item.classList.add('hidden');
+      });
+    });
+
+    function openMenu(restoId) {
+      const resto = restaurantData.find(r => r.id === restoId);
+      if (!resto) return;
+      currentRestoId = restoId;
+      menuRestoName.textContent = resto.name;
+      menuItemsList.innerHTML = resto.items.map((item, idx) => {
+        const priceText = (item.price === 0 || !item.price) ? "বাজার দর" : `৳ ${item.price}`;
+        return `<div class="menu-item"><div class="img-placeholder">${item.image}</div><div class="menu-item-info"><h4>${item.name}</h4><div class="item-price">${priceText}</div></div><button data-restoid="${restoId}" data-name="${item.name}" data-price="${item.price}">+ Add</button></div>`;
+      }).join('');
+      menuSearchInput.value = '';
+      menuItemsList.querySelectorAll('.menu-item').forEach(el => el.classList.remove('hidden'));
+      menuItemsList.querySelectorAll('button').forEach(btn => {
+        btn.addEventListener('click', function() {
+          addToCart(parseInt(this.dataset.restoid), this.dataset.name, parseInt(this.dataset.price));
+          renderCart();
+        });
+      });
+      menuOverlay.classList.add('active');
+    }
+
+    function closeMenu() { menuOverlay.classList.remove('active'); currentRestoId = null; }
+    menuBackBtn.addEventListener('click', closeMenu);
+    closeMenuBtn.addEventListener('click', closeMenu);
+    menuOverlay.addEventListener('click', function(e) { if (e.target === this) closeMenu(); });
+
+    function addToCart(restoId, name, price) {
+      const resto = restaurantData.find(r => r.id === restoId);
+      const restoName = resto ? resto.name : 'Unknown';
+      const key = `${restoId}-${name}`;
+      let useProgression = false;
+      let match = name.match(/-\s*(\d+(?:\.\d+)?)\s*গ্রাম/i);
+      if (match && parseFloat(match[1]) === 50) useProgression = true;
+      if (cart[key]) { if (useProgression) cart[key].qty += 1; else cart[key].qty += 1; } 
+      else { cart[key] = { name, price, qty: 1, restoName, useProgression }; }
+      let itemName = name.split('-')[0].trim();
+      showToast(`${itemName} যুক্ত করা হয়েছে!`);
+      renderCart();
+    }
+
+    function removeFromCart(key) { delete cart[key]; renderCart(); }
+    function changeQty(key, delta) {
+      if (!cart[key]) return;
+      cart[key].qty += delta;
+      if (cart[key].qty <= 0) delete cart[key];
+      renderCart();
+    }
+
+    function renderCart() {
+      const keys = Object.keys(cart);
+      if (keys.length === 0) { cartItemsContainer.innerHTML = `<div class="empty-cart-msg"><i class="fas fa-bag-shopping"></i> Cart is empty</div>`; cartFoodPrice.textContent = '৳ 0'; return; }
+      let foodTotal = 0;
+      let html = '';
+      keys.forEach(key => {
+        const item = cart[key];
+        if (item.price > 0) foodTotal += item.price * item.qty;
+        const displayName = getSizeLabel(item.name, item.qty);
+        const subtotal = item.price * item.qty;
+        html += `<div class="cart-item"><div class="item-name">${displayName}<small>${item.restoName}</small></div><div class="qty-control"><i class="fas fa-minus" data-key="${key}" data-delta="-1"></i><span>${item.qty}</span><i class="fas fa-plus" data-key="${key}" data-delta="1"></i><i class="fas fa-trash-alt" style="color:#ef4444; margin-left:8px;" data-key="${key}" data-remove="true"></i></div><span>৳ ${subtotal}</span></div>`;
+      });
+      cartItemsContainer.innerHTML = html;
+      cartFoodPrice.textContent = `৳ ${foodTotal}`;
+      cartItemsContainer.querySelectorAll('.fa-minus, .fa-plus').forEach(el => {
+        el.addEventListener('click', function() { changeQty(this.dataset.key, parseInt(this.dataset.delta)); });
+      });
+      cartItemsContainer.querySelectorAll('.fa-trash-alt').forEach(el => {
+        el.addEventListener('click', function() { removeFromCart(this.dataset.key); });
+      });
+    }
+
+    function buildOrderMessage() {
+      const userData = localStorage.getItem('freshBites_user') ? JSON.parse(localStorage.getItem('freshBites_user')) : null;
+      const registeredName = userData ? userData.name : 'Not Registered';
+      const registeredPhone = userData ? userData.phone : 'Not Registered';
+      const deliveryName = document.getElementById('customerName').value.trim();
+      const deliveryPhone = document.getElementById('customerPhone').value.trim();
+      const deliveryAddress = document.getElementById('customerAddress').value.trim();
+      const customerNote = document.getElementById('customerNote').value.trim();
+      if (deliveryName === '' || deliveryPhone === '' || deliveryAddress === '') {
+        alert('⚠️ দয়া করে অর্ডার ফর্মে নাম, ফোন নম্বর এবং ঠিকানা সম্পূর্ণভাবে পূরণ করুন!');
+        return null;
+      }
+      const keys = Object.keys(cart);
+      if (keys.length === 0) return null;
+      let itemLines = '', total = 0;
+      keys.forEach(key => {
+        const item = cart[key];
+        const subtotal = item.price * item.qty;
+        total += subtotal;
+        const displayName = getSizeLabel(item.name, item.qty);
+        itemLines += `• ${displayName} (${item.restoName}) = ৳${subtotal}\n`;
+      });
+      let notePart = '';
+      if (customerNote !== '') notePart = `\n📝 Custom Note:\n${customerNote}\n`;
+      return `New Fresh Bites Order
+📋 Registered Info:
+Name: ${registeredName}
+Phone: ${registeredPhone}
+------------------------
+🚚 Delivery Details:
+Name: ${deliveryName}
+Phone: ${deliveryPhone}
+Address: ${deliveryAddress}
+${notePart}
+💳 পেমেন্ট পদ্ধতি: ${selectedPayment}
+------------------------
+🛒 Items:
+${itemLines}
+Total Price: ৳${total}`;
+    }
+
+    confirmBtn.addEventListener('click', function() {
+      const userData = localStorage.getItem('freshBites_user') ? JSON.parse(localStorage.getItem('freshBites_user')) : null;
+      if (!userData) { alert('⚠️ দয়া করে আগে রেজিস্ট্রেশন করুন!'); return; }
+      const msg = buildOrderMessage();
+      if (!msg) return;
+      
+      // Send data to Backend (Database)
+      fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: document.getElementById('customerName').value.trim(),
+          phone: document.getElementById('customerPhone').value.trim(),
+          address: document.getElementById('customerAddress').value.trim(),
+          items: msg.split('🛒 Items:')[1] || 'Items',
+          total: msg.split('Total Price:')[1] || '0',
+          payment: selectedPayment,
+          note: document.getElementById('customerNote').value.trim()
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        alert('✅ অর্ডার সফলভাবে ডেটাবেসে সেভ হয়েছে!');
+      })
+      .catch(err => {
+        console.error('Error:', err);
+        alert('⚠️ ডেটাবেসে সেভ করতে সমস্যা হয়েছে! তবে টেলিগ্রামে মেসেজ যাচ্ছে।');
+      });
+    });
+
+    searchInput.addEventListener('input', function() { searchQuery = this.value; renderRestaurants(); });
+    catItems.forEach(cat => {
+      cat.addEventListener('click', function() {
+        catItems.forEach(c => c.classList.remove('active'));
+        this.classList.add('active');
+        activeCategory = this.dataset.cat;
+        renderRestaurants();
+      });
+    });
+    renderRestaurants();
+    renderCart();
+  })();
+</script>
+</body>
+</html>
